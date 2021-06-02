@@ -10,9 +10,9 @@ dtheta = theta_dot.dt + kp.error + ki.integral_
 _integral += error.kp - integral.kc    
 dtheta = theta_dot.dt + integral_  
 
-The behavior of the modified filter is analogous to spring-mass system. Kp (stiffness) and Kc (damping) are related by the damping ratio Q which in this case is held constant. Doing so allows behavior of the filter to be controlled with a single parameter.  
+The behavior of the modified filter is analogous to spring-mass system. Kp (stiffness) and Kc (damping) are related by the damping ratio Q which is held constant. This allows the behavior of the filter to be controlled via a single parameter.  
 
-The filter also uses a quaternion to encode rotations which makes it easy to perform coordinate transformations. These include:  
+The filter uses a quaternion to encode rotations. This makes it easy to perform coordinate transformations. These include:  
 - Transfor a vector from the local frame to the global (and vice versa)
 - Get unit vectors of the X, Y and Z axes in the local or global frame.
 
