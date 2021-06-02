@@ -16,7 +16,7 @@ The filter uses a quaternion to encode rotations. This makes it easy to perform 
 - Transfor a vector from the local frame to the global (and vice versa)
 - Get unit vectors of the X, Y and Z axes in the local or global frame.
 
-Since a 6-axis IMU has no absolute reference for heading (no magnetometer) there is a rountine to rotate the current heading (yaw angle) estimate. Basic vector operations are also included to easily implement a heading correction algorithm if one has an adequate sensor. 
+Since a 6-axis IMU has no absolute reference for heading, there is a rountine to rotate the current heading estimate (yaw angle). Basic vector operations have been included to easily implement a heading correction algorithm should one have an additional sensor (such a magnetometer or some other absolute heading sensor).
 
 For more information on the Mahony filter see these links:
 - [IMU Data Fusing: Complementary, Kalman, and Mahony Filter](http://www.olliw.eu/2013/imu-data-fusing/#chapter23)
