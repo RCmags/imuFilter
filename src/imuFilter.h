@@ -1,4 +1,5 @@
-#include "Arduino.h"
+#include <Arduino.h>
+#include <quaternion_type.h>
 
 #ifndef imuFilter_h
 #define imuFilter_h
@@ -11,31 +12,35 @@
 
 //--------------- Template Parameters ---------------- [ No characters after backlash! ]
  
-#define TEMPLATE_TYPE           \
-        const float     *ALPHA
+#define TEMPLATE_TYPE   const float *ALPHA
 
-#define TEMPLATE_INPUTS         \
-                         ALPHA
+#define TEMPLATE_INPUTS              ALPHA
 
 //---------------- Class definition ------------------ 
                          
 template<TEMPLATE_TYPE>
 class imuFilter {
   private: 
-    float s[VEC_DIM] = {0};
-    float q[QUAT_DIM] = {1, 0, 0, 0};
+    //float s[VEC_DIM] = {0};
+    vec3_t s;
+    //float q[QUAT_DIM] = {1, 0, 0, 0};
+    quat_t q;
+    
     uint32_t last_time = 0;
   
     // Quaternion operations
-    void multiplyQuaternion( float [] );
-    void normalizeQuaternion();
+    //void multiplyQuaternion( float [] );
+    //void normalizeQuaternion();
     float updateTimer();
       
-  public:   
+  public:
+    //imuFilter();
+    //void setGain();
+      
     // Vector functions:
-    void crossProduct( float [], float [] );
-    float dotProduct( float [], float [] );
-    void normalizeVector( float [] );
+    //void crossProduct( float [], float [] );
+    //float dotProduct( float [], float [] );
+    //void normalizeVector( float [] );
 
     // Initialization:
     void setup();
@@ -49,13 +54,13 @@ class imuFilter {
     //-- Fusion outputs:
     
     // Quaternion
-    void getQuat( float r[] );
+    quat_t getQuat();
 
     // Axis projections:
-    void getXaxis( const bool, float [] );
-    void getYaxis( const bool, float [] );
-    void getZaxis( const bool, float [] );
-    void projectVector( const bool, float [] );
+    vec3_t getXaxis( const bool );
+    vec3_t getYaxis( const bool );
+    vec3_t getZaxis( const bool );
+    vec3_t projectVector( const bool, vec3_t );
     
     // Euler Angles:
     float roll();

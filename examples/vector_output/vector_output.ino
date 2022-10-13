@@ -13,18 +13,18 @@ imuFilter <&GAIN> fusion;
 basicMPU6050<> imu;
 
 // Display functions:
-void printVector( float r[] ) {
-  Serial.print( r[0], 2 );
+void printVector( vec3_t r ) {
+  Serial.print( r.x, 2 );
   Serial.print( "," );
-  Serial.print( r[1], 2 );
+  Serial.print( r.y, 2 );
   Serial.print( "," );
-  Serial.print( r[2], 2 );
+  Serial.print( r.z, 2 );
 }
 
-void printQuat( float q[] ) {
-  Serial.print( q[0] );
+void printQuat( quat_t q ) {
+  Serial.print( q.w );
   Serial.print( "," );
-  printVector( q + 1 );
+  printVector( q.v );
 }
 
 void setup() {
@@ -42,18 +42,13 @@ void loop() {
   // Update filter:
   fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az() );    
 
-  float v[3] = { 1, 1, 0 };
-  float x[3], y[3], z[3];
-
-  // Unit vectors of rectangular coodinates
-  #define TO_WORLD false         
-                                // Project local axis to global reference frame = true 
-                                // Project global axis to local reference frame = false
+  // Unit vectors of rectangular coodinates [Choose between GLOBAL_FRAME and LOCAL_FRAME]
+  vec3_t x = fusion.getXaxis(GLOBAL_FRAME);
+  vec3_t y = fusion.getYaxis(GLOBAL_FRAME);
+  vec3_t z = fusion.getZaxis(GLOBAL_FRAME);
   
-  fusion.getXaxis( TO_WORLD, x );
-  fusion.getYaxis( TO_WORLD, y );
-  fusion.getZaxis( TO_WORLD, z );
-  fusion.projectVector( TO_WORLD, v );
+  const vec3_t VEC = {1, 1, 0};
+  vec3_t v = fusion.projectVector(GLOBAL_FRAME, VEC);
 
   // Display vectors:
   Serial.print( " x = " );
@@ -65,11 +60,8 @@ void loop() {
   Serial.print( " | v = " );
   printVector( v );
   
-  // Display quaternion
-  float q[4];
-  fusion.getQuat(q);
-  
+  // Display quaternion  
   Serial.print( " | q = " );
-  printQuat( q );  
+  printQuat( fusion.getQuat() );  
   Serial.println();
 }
