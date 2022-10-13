@@ -48,12 +48,11 @@ template<TEMPLATE_TYPE>
 void imuFilter<TEMPLATE_INPUTS>
 ::update( float gx, float gy, float gz ) {
     // Update Timer
-    float dt = updateTimer()*0.5;
+    float dt = updateTimer();
 
     // Rotation increment
     vec3_t da = vec3_t(gx, gy, gz)*dt;
-    float  w  = 1 - 0.5*da.dot(da);
-    quat_t dq = quat_t(w, da);
+    quat_t dq; dq.setRotation(da, SMALL_ANGLE); 
         
     // Multiply and normalize Quaternion
     q *= dq;  
@@ -71,30 +70,20 @@ void imuFilter<TEMPLATE_INPUTS>
     // Normalize vector
     vec3_t v = vec3_t(ax, ay, az).norm();
 
-    // Project vertical vector
-    vec3_t vp = q.axisZ(LOCAL_FRAME);
-    
-    // Cross product [ in Local frame ]     
+    // error about vertical
+    vec3_t vp = q.axisZ(LOCAL_FRAME);   
     v = v.cross(vp);
 
     // Rotation increment
-    constexpr float KP = (*ALPHA)*(*ALPHA);
+    constexpr float KP = (*ALPHA)*(*ALPHA);     // use alpha from first-order system
     constexpr float KC = (*ALPHA)*INV_Q_VAL;
     
-        // low pass filter
-    float KP_t = KP*dt;
-    float KC_t = KC*sqrt(dt);       // scale coefficients
+    s += v*KP - s*KC;                           // filter rate    
+    vec3_t da = vec3_t(gx, gy, gz)*dt + s;       
+ 
+    quat_t dq; dq.setRotation(da, SMALL_ANGLE);
 
-    dt *= 0.5;
-    s += v*KP_t - s*KC_t;           // update filter rate
-        
-    vec3_t da = {gx, gy, gz};       
-    da = da*dt + s*0.5;             // angle change
-    
-    float   w = 1 - 0.5*da.dot(da); 
-    quat_t dq = quat_t(w, da);
-
-    //-- Multiply and normalize Quaternion  
+    // Multiply and normalize Quaternion  
     q *= dq;
     q = q.norm();
 }
@@ -103,7 +92,7 @@ void imuFilter<TEMPLATE_INPUTS>
 
 template<TEMPLATE_TYPE>
 void imuFilter<TEMPLATE_INPUTS>
-::rotateHeading( const bool SMALL_ANG, float angle ) {
+::rotateHeading( float angle, const bool SMALL_ANG ) {
   // rotation about vertical
   vec3_t vp = q.axisZ(LOCAL_FRAME);  
   quat_t dq; dq.setRotation(vp, angle, SMALL_ANG);
@@ -143,7 +132,7 @@ vec3_t imuFilter<TEMPLATE_INPUTS>
 
 template<TEMPLATE_TYPE>
 vec3_t imuFilter<TEMPLATE_INPUTS>
-::projectVector( const bool TO_WORLD, vec3_t vec ) {
+::projectVector( vec3_t vec, const bool TO_WORLD ) {
     return q.rotate(vec, TO_WORLD);
 }
 
@@ -163,7 +152,6 @@ float imuFilter<TEMPLATE_INPUTS>
 ::pitch() {
     constexpr float PI_2 = PI*0.5;    
     vec3_t v = q.v;
-
     float a = 2*( v.y*q.w - v.z*v.x );    
     if( a > 1 ) {
     return PI_2; 

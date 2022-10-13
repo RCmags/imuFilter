@@ -48,7 +48,7 @@ void loop() {
   vec3_t z = fusion.getZaxis(GLOBAL_FRAME);
   
   const vec3_t VEC = {1, 1, 0};
-  vec3_t v = fusion.projectVector(GLOBAL_FRAME, VEC);
+  vec3_t v = fusion.projectVector(VEC, GLOBAL_FRAME);
 
   // Display vectors:
   Serial.print( " x = " );

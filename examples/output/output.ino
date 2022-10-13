@@ -7,7 +7,7 @@
 
 // Sensor fusion
 constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
-imuFilter <&GAIN> fusion;
+imuFilter <&GAIN> fusion;       // If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only).
 
 // Imu sensor
 basicMPU6050<> imu;

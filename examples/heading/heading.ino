@@ -24,7 +24,7 @@ void setup() {
                   
   // Rotate heading:
   float angle = 45 * DEG_TO_RAD;                // angle in radians to rotate heading about z-axis
-  fusion.rotateHeading( LARGE_ANGLE, angle );   // Can choose LARGE_ANGLE or SMALL_ANGLE approximation
+  fusion.rotateHeading( angle, LARGE_ANGLE );   // Can choose LARGE_ANGLE or SMALL_ANGLE approximation
 }
 
 void loop() {  

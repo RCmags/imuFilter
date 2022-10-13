@@ -21,27 +21,12 @@
 template<TEMPLATE_TYPE>
 class imuFilter {
   private: 
-    //float s[VEC_DIM] = {0};
     vec3_t s;
-    //float q[QUAT_DIM] = {1, 0, 0, 0};
     quat_t q;
-    
-    uint32_t last_time = 0;
-  
-    // Quaternion operations
-    //void multiplyQuaternion( float [] );
-    //void normalizeQuaternion();
+    uint32_t last_time;
     float updateTimer();
       
   public:
-    //imuFilter();
-    //void setGain();
-      
-    // Vector functions:
-    //void crossProduct( float [], float [] );
-    //float dotProduct( float [], float [] );
-    //void normalizeVector( float [] );
-
     // Initialization:
     void setup();
     void setup( float, float, float );
@@ -49,7 +34,7 @@ class imuFilter {
     // Heading estimate:
     void update( float, float, float );
     void update( float, float, float, float, float, float );
-    void rotateHeading( const bool, float );
+    void rotateHeading( float, const bool );
 
     //-- Fusion outputs:
     
@@ -60,7 +45,7 @@ class imuFilter {
     vec3_t getXaxis( const bool );
     vec3_t getYaxis( const bool );
     vec3_t getZaxis( const bool );
-    vec3_t projectVector( const bool, vec3_t );
+    vec3_t projectVector( vec3_t, const bool );
     
     // Euler Angles:
     float roll();
