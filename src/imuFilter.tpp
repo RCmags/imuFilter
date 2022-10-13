@@ -33,7 +33,7 @@ void imuFilter<TEMPLATE_INPUTS>
   vec3_t v = vec3_t(ax, ay, az).norm();
 
   // Rotate quaternion onto vertical
-  float norm   = v.x*v.x + v.y*v.y;
+  float norm = v.x*v.x + v.y*v.y;
   float cosine = v.z/sqrt( norm + v.z*v.z ) * 0.5;
   norm = sqrt( (0.5 - cosine)/norm );
   q.w = sqrt(0.5 + cosine);
