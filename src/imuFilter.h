@@ -4,13 +4,11 @@
 #ifndef imuFilter_h
 #define imuFilter_h
 
-//------------------ Common terms -------------------- 
+//------------------ Coefficients -------------------- 
 
-#define INV_Q_VAL   1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
-#define QUAT_DIM    4
-#define VEC_DIM     3
+#define INV_Q_VAL       1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
 
-//--------------- Template Parameters ---------------- [ No characters after backlash! ]
+//-------------------- Parameters -------------------- [ No characters after backlash! ]
  
 #define TEMPLATE_TYPE   const float *ALPHA
 
