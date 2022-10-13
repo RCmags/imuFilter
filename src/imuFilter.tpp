@@ -80,7 +80,6 @@ void imuFilter<TEMPLATE_INPUTS>
     
     s += v*KP - s*KC;                           // filter rate    
     vec3_t da = vec3_t(gx, gy, gz)*dt + s;       
- 
     quat_t dq; dq.setRotation(da, SMALL_ANGLE);
 
     // Multiply and normalize Quaternion  
@@ -93,12 +92,12 @@ void imuFilter<TEMPLATE_INPUTS>
 template<TEMPLATE_TYPE>
 void imuFilter<TEMPLATE_INPUTS>
 ::rotateHeading( float angle, const bool SMALL_ANG ) {
-  // rotation about vertical
-  vec3_t vp = q.axisZ(LOCAL_FRAME);  
-  quat_t dq; dq.setRotation(vp, angle, SMALL_ANG);
-  
-  // Rotate quaternion    
-  q *= dq;
+    // rotation about vertical
+    vec3_t vp = q.axisZ(LOCAL_FRAME);  
+    quat_t dq; dq.setRotation(vp, angle, SMALL_ANG);
+    
+    // Rotate quaternion    
+    q *= dq;
 }
 
 //----------------- Fusion outputs ------------------- 
@@ -154,11 +153,11 @@ float imuFilter<TEMPLATE_INPUTS>
     vec3_t v = q.v;
     float a = 2*( v.y*q.w - v.z*v.x );    
     if( a > 1 ) {
-    return PI_2; 
+        return PI_2; 
     } else if ( a < -1 ) {
-    return -PI_2;
+        return -PI_2;
     } else {
-    return asin(a);
+        return asin(a);
     }
 }
 
