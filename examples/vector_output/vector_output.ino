@@ -2,17 +2,17 @@
  This sketch shows to get the axis projections from the orientation estimate. It also shows how to project a vector in the global or local reference frame.
  */
 
-#include <imuFilter.h>
 #include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
+#include <imuFilter.h>
 
-// Sensor fusion
-constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines response of heading correction with respect to gravity.
-imuFilter <&GAIN> fusion;
-
-// Imu sensor
 basicMPU6050<> imu;
 
-// Display functions:
+// =========== Settings ===========
+imuFilter fusion;
+#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector */
+
+// ========= functions ===========
+
 void printVector( vec3_t r ) {
   Serial.print( r.x, 2 );
   Serial.print( "," );
@@ -40,7 +40,7 @@ void setup() {
 
 void loop() {  
   // Update filter:
-  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az() );    
+  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN );    
 
   // Unit vectors of rectangular coodinates [Choose between GLOBAL_FRAME and LOCAL_FRAME]
   vec3_t x = fusion.getXaxis(GLOBAL_FRAME);

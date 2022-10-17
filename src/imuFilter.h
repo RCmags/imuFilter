@@ -6,17 +6,11 @@
 
 //------------------ Coefficients -------------------- 
 
-#define INV_Q_VAL       1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
-
-//-------------------- Parameters -------------------- [ No characters after backlash! ]
- 
-#define TEMPLATE_TYPE   const float *ALPHA
-
-#define TEMPLATE_INPUTS              ALPHA
+#define INV_Q_FACTOR   		2           // Filter damping. A smaller value leads to faster response but more oscillations.
+#define DEFAULT_GAIN		0.1         // Default filter gain. A faster value 
 
 //---------------- Class definition ------------------ 
                          
-template<TEMPLATE_TYPE>
 class imuFilter {
   private: 
     vec3_t s;
@@ -31,7 +25,7 @@ class imuFilter {
 
     // Heading estimate:
     void update( float, float, float );
-    void update( float, float, float, float, float, float );
+    void update( float, float, float, float, float, float, float, const bool );
     void rotateHeading( float, const bool );
 
     //-- Fusion outputs:
@@ -51,11 +45,6 @@ class imuFilter {
     float yaw();
 };
 
-#include "imuFilter.tpp"
-
-//----------------- Clearing labels ------------------
-
-#undef TEMPLATE_TYPE
-#undef TEMPLATE_INPUTS
+#include "imuFilter.cpp"
 
 #endif
