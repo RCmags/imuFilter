@@ -16,13 +16,13 @@ void imuFilter::setup() {
 void imuFilter::setup( float ax, float ay, float az ) { 
   setup();
   // set quaternion as vertical vector
-  vec3_t v = vec3_t(ax, ay, az).norm();				// gravity vector
+  vec3_t v = vec3_t(ax, ay, az).norm();             // gravity vector
  
-  float norm = v.x*v.x + v.y*v.y;					
+  float norm = v.x*v.x + v.y*v.y;                   
   float cosine = v.z/sqrt( norm + v.z*v.z ) * 0.5;  // vertical angle
   norm = sqrt( (0.5 - cosine)/norm );               // sine of half angle
  
-  q.w = sqrt(0.5 + cosine);							// quaternion components
+  q.w = sqrt(0.5 + cosine);                         // quaternion components
   q.v = vec3_t(v.y*norm, -v.x*norm, 0);
 }
 
