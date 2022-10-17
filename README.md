@@ -19,11 +19,11 @@ The behavior of the modified filter is analogous to spring-mass system. Kp (stif
 
 $\ K_{c} = \sqrt{ K_{p}/Q } $
 
-Since the filter uses a quaternion to encode rotations, it is easy to perform coordinate transformations. To this end, the library has functions to:
+As the filter uses a quaternion to encode rotations, it's easy to perform coordinate transformations. The library has functions to:
 - Transfor a vector to the local or global frame.
 - Get the unit vectors of the X, Y and Z axes in the local or global frame.
 
-Moreover, as a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function has been included to rotate the heading about the vertical (yaw) axis. One can then use vector operations to correct the heading with an additional sensor (such a magnetometer).
+Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor such a magnetometer.
 
 # Dependecies
 This library depends on the [vector_datatype](https://github.com/RCmags/vector_datatype) library.
