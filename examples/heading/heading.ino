@@ -1,5 +1,5 @@
 /*
- This sketch shows to perform vector products and rotate heading (yaw angle) of the estimated orientation.
+ This sketch shows to rotate the heading (yaw angle) of the estimated orientation.
  */
 
 #include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
@@ -7,9 +7,7 @@
 
 basicMPU6050<> imu;
 
-// =========== Settings ===========
 imuFilter fusion;
-#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector */
 
 void setup() {
   // Initialize filter: 
@@ -28,7 +26,7 @@ void setup() {
 
 void loop() {  
   // Update filter:
-  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN );    
+  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az() );    
 
   // Display angles:
   Serial.print( fusion.pitch() );

@@ -1,3 +1,5 @@
+#include "imuFilter.h"
+
 //----------------- Initialization ------------------- 
 
 float imuFilter::updateTimer() {
@@ -45,8 +47,8 @@ void imuFilter::update( float gx, float gy, float gz ) {
 
 void imuFilter::update( float gx, float gy, float gz, 
                         float ax, float ay, float az, 
-                        float alpha=DEFAULT_GAIN,
-                        const bool SCALE_GAIN=true ) {  
+                        float alpha /*=DEFAULT_GAIN*/, 
+                        const bool SCALE_GAIN /*=true*/ ) {  
   // Update Timer
   float dt = updateTimer();
 

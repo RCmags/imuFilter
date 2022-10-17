@@ -7,9 +7,7 @@
 
 basicMPU6050<> imu;
 
-// =========== Settings ===========
 imuFilter fusion;
-#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector */
 
 // ========= functions ===========
 
@@ -40,7 +38,7 @@ void setup() {
 
 void loop() {  
   // Update filter:
-  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN );    
+  fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az() );    
 
   // Unit vectors of rectangular coodinates [Choose between GLOBAL_FRAME and LOCAL_FRAME]
   vec3_t x = fusion.getXaxis(GLOBAL_FRAME);

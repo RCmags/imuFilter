@@ -38,7 +38,7 @@ void loop() {
   // Update filter:
   
   #if FUSION
-    /*NOTE: SCALE_GAIN is an optinal parameter */
+    /*NOTE: GAIN and SCALE_GAIN are optional parameters */
     fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN, SCALE_GAIN );  
   #else
     // Only use gyroscope

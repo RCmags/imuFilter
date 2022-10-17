@@ -25,7 +25,9 @@ class imuFilter {
 
     // Heading estimate:
     void update( float, float, float );
-    void update( float, float, float, float, float, float, float, const bool );
+    void update( float, float, float, float, float, float, 
+                 float=DEFAULT_GAIN, const bool=true );
+                 
     void rotateHeading( float, const bool );
 
     //-- Fusion outputs:
@@ -44,7 +46,5 @@ class imuFilter {
     float pitch();
     float yaw();
 };
-
-#include "imuFilter.cpp"
 
 #endif
