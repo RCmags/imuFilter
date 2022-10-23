@@ -13,10 +13,10 @@ imuFilter fusion;
 #define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
                                  If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only) */
 
-#define SCALE_GAIN    true    /* Scale gain by timestep, true or false. Defaults to true. Multiplies the gain by the refresh time. This allows 
-                                 the filter to behave the same if even the main loop execuses faster or slower */                          
+#define SD_ACCEL      0.1     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
+                                 Accelerations within this band are used to update the orientation. [Measured in g-force] */                          
             
-#define FUSION        false   /* Enable sensor fusion. Setting to "true" enables gravity correction */
+#define FUSION        true    /* Enable sensor fusion. Setting to "true" enables gravity correction */
 
 void setup() {
    #if FUSION
@@ -38,8 +38,8 @@ void loop() {
   // Update filter:
   
   #if FUSION
-    /*NOTE: GAIN and SCALE_GAIN are optional parameters */
-    fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN, SCALE_GAIN );  
+    /*NOTE: GAIN and SD_ACCEL are optional parameters */
+    fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN, SD_ACCEL );  
   #else
     // Only use gyroscope
     fusion.update( imu.gx(), imu.gy(), imu.gz() );

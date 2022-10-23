@@ -9,6 +9,7 @@ float imuFilter::updateTimer() {
 }
 
 void imuFilter::setup() {
+  var = 0;
   q = {1,0,0,0};
   last_time = micros();
 }
@@ -47,25 +48,33 @@ void imuFilter::update( float gx, float gy, float gz ) {
 
 void imuFilter::update( float gx, float gy, float gz, 
                         float ax, float ay, float az, 
-                        float alpha /*=DEFAULT_GAIN*/, 
-                        const bool SCALE_GAIN /*=true*/ ) {  
+                        const float ALPHA  /*=DEFAULT_GAIN*/, 
+                        const float SD_ACC /*=DEFAULT_SD*/ ) {  
   // Update Timer
   float dt = updateTimer();
 
+  // check global acceleration
+  vec3_t accel = {ax, ay, az};
+  vec3_t error = q.rotate(accel, GLOBAL_FRAME) - vec3_t(0,0,1);
+  float error_mag = error.dot(error);   // deviation from (0,0,1)g
+  
+  const float INV_VAR = 1.0/( SD_ACC * SD_ACC );  
+  float gain = 1.0/(1 + var*INV_VAR);   // kalman gain
+  var = error_mag + var*gain;           // variance of error
+ 
   // error about vertical
   vec3_t vz = q.axisZ(LOCAL_FRAME);   
-  vec3_t ve = vec3_t(ax, ay, az).norm();
+  vec3_t ve = accel.norm();
   ve = ve.cross(vz);
 
   // filter gains
-  float kp = (alpha*alpha);          // spring constant
-  if( SCALE_GAIN ) {
-    kp *= dt;
-  }   
-  float kc = sqrt(INV_Q_FACTOR*kp);  // damping constant           
+  const float KP = ALPHA*ALPHA;
+  float kp = KP*dt;                     // spring constant
+  float kc = sqrt(INV_Q_FACTOR*kp);     // damping constant           
+  kp *= gain;                           // modulate error with kalman gain
   
   // Rotation increment
-  s += ve*kp - s*kc;                 // target angular rate   
+  s += ve*kp - s*kc;                    // target angular rate   
   vec3_t da = vec3_t(gx, gy, gz)*dt + s;       
   quat_t dq; dq.setRotation(da, SMALL_ANGLE);
 

@@ -8,6 +8,7 @@
 
 #define INV_Q_FACTOR        2           // Filter damping. A smaller value leads to faster response but more oscillations.
 #define DEFAULT_GAIN        0.1         // Default filter gain. A faster value 
+#define DEFAULT_SD          0.1         // Default standard deviation in acceleration. [g-force]
 
 //---------------- Class definition ------------------ 
                          
@@ -15,7 +16,9 @@ class imuFilter {
   private: 
     vec3_t s;
     quat_t q;
+    float var;
     uint32_t last_time;
+    
     float updateTimer();
       
   public:
@@ -25,8 +28,11 @@ class imuFilter {
 
     // Heading estimate:
     void update( float, float, float );
-    void update( float, float, float, float, float, float, 
-                 float=DEFAULT_GAIN, const bool=true );
+    
+    void update( float, float, float, 
+                 float, float, float, 
+                 const float=DEFAULT_GAIN, 
+                 const float=DEFAULT_SD  );
                  
     void rotateHeading( float, const bool );
 
