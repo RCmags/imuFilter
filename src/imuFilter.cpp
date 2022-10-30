@@ -10,6 +10,7 @@ float imuFilter::updateTimer() {
 
 void imuFilter::setup() {
   var = 0;
+  s = {0,0,0};
   q = {1,0,0,0};
   last_time = micros();
 }
