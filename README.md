@@ -19,7 +19,7 @@ The behavior of the modified filter is analogous to spring-mass system. Kp (stif
 
 $\ K_{c} = \sqrt{ K_{p}/Q } $
 
-To improve the response of the filter, the acceleration is checked to see if it lies within a given deviation from vertical. If the acceleration is within this band it will be used to re-adjust the heading. However, if the acceleration lies outside of this band the correction is suppressed. This is accomplished with a kalman filter that uses the deviation from vertical to update the acceleration's variance. This value then is used to set the gain needed to correct the heading:  
+To improve the response of the filter, the acceleration is checked to see if it lies within a given deviation from vertical. If the acceleration is within this band, it will be used to re-adjust the heading. However, if the acceleration lies outside of this band, the correction will be  greatly suppressed. This is accomplished with a kalman-like filter that uses the deviation from vertical to update the variance and kalman gain:
 
 $\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
 
