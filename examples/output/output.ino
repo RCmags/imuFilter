@@ -10,15 +10,21 @@ basicMPU6050<> imu;
 // =========== Settings ===========
 imuFilter fusion;
 
-#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
+#define GAIN          0.5     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
                                  If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only) */
 
-#define SD_ACCEL      0.1     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
+#define SD_ACCEL      0.2     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
                                  Accelerations within this band are used to update the orientation. [Measured in g-force] */                          
             
 #define FUSION        true    /* Enable sensor fusion. Setting to "true" enables gravity correction */
 
 void setup() {
+  Serial.begin(38400);
+  
+  // Calibrate imu
+  imu.setup();
+  imu.setBias();
+
    #if FUSION
     // Set quaternion with gravity vector
     fusion.setup( imu.ax(), imu.ay(), imu.az() );     
@@ -26,12 +32,6 @@ void setup() {
     // Just use gyro
     fusion.setup();                                   
   #endif
-
-  // Calibrate imu
-  imu.setup();
-  imu.setBias();
-   
-  Serial.begin(38400);
 }
 
 void loop() {

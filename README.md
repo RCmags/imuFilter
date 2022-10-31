@@ -1,33 +1,15 @@
 # imuFilter
-This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _modified Mahony_ filter that replaces the PI controller with a damped 2nd-order system. The proportional term was removed and the integral term was forced to decay to damp the system. The correction steps are as follows:
-
-__Mahony:__  
-$\ E_{k} = \theta_{accel} - \theta_{k-1} $
-
-$\ I_{k} = I_{k-1} + {E_{k}}{\Delta t} $
-
-$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + K_{p}E_{k} + K_{i}I_{k} $
-
-__Modified Mahony:__ (this filter)  
-$\ E_{k} = \theta_{accel} - \theta_{k-1} $
-
-$\ I_{k} = K_{p}{E_{k}} + (1 - K_{c})I_{k-1} $
-
-$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + I_{k} $  
-
-The behavior of the modified filter is analogous to spring-mass system. Kp (stiffness) and Kc (damping) are related by the [Q-factor](https://en.wikipedia.org/wiki/Q_factor). This value is held constant, so the behavior of the filter is controlled by a single parameter (Kp):  
-
-$\ K_{c} = \sqrt{ K_{p}/Q } $
-
-To improve the response of the filter, the acceleration is checked to see if it lies within a given deviation from its steady-state value (1g vertically). If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. This is accomplished with a kalman-like filter that uses the deviation from vertical to update its variance and gain:
+This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _kalman-like_ filter to check the acceleration and see if it lies within a given deviation from 1g vertical. If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. To this end,tThe deviation from vertical is used to update the variance and set the kalman gain. This gain then used to determine how strong to make the correction. Moreover, the gain is scaled by an additional parameter so it acts as 1rst-order low pass filter on the acceleration. 
 
 $\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
 
-$\ K_{\sigma} = 1/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
+$\ K_{\sigma} = {\alpha}/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
 
 $\ {\sigma}^2 = | \overrightarrow{a_{rel}} |^2 + K_{\sigma}{\sigma}^2 $ 
 
-$\ E_{k} = K_{\sigma} E_{k} $
+$\ E_{k} = \theta_{accel} - \theta_{k-1} $
+
+$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + K_{\sigma}E_{k} $
 
 As the filter uses a quaternion to encode rotations, it's easy to perform coordinate transformations. The library has functions to:
 - Transfor a vector to the local or global frame.

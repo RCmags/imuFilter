@@ -26,14 +26,14 @@ void printQuat( quat_t q ) {
 }
 
 void setup() {
-  // Initialize filter: 
-  fusion.setup( imu.ax(), imu.ay(), imu.az() );     
-
+  Serial.begin(38400);
+      
   // Calibrate imu
   imu.setup();
   imu.setBias();
-  
-  Serial.begin(38400);
+ 
+  // Initialize filter: 
+  fusion.setup( imu.ax(), imu.ay(), imu.az() ); 
 }
 
 void loop() {  
