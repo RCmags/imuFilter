@@ -1,11 +1,13 @@
 # imuFilter
-This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _kalman-like_ filter to check the acceleration and see if it lies within a given deviation from 1g vertical. If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. To this end,tThe deviation from vertical is used to update the variance and set the kalman gain. This gain then used to determine how strong to make the correction. Moreover, the gain is scaled by an additional parameter so it acts as 1rst-order low pass filter on the acceleration. 
+This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _kalman-like_ filter to check the acceleration and see if it lies within a given deviation from 1g vertical. If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. To this end, the deviation from vertical is used to update the variance and set the kalman gain: 
 
 $\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
 
 $\ K_{\sigma} = {\alpha}/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
 
 $\ {\sigma}^2 = | \overrightarrow{a_{rel}} |^2 + K_{\sigma}{\sigma}^2 $ 
+
+The kalman gain then scaled by a delay parameter and used to determine the attitude correction. This allows the filter to act like a 1rst-order low pass filter that smoothens the acceleration at the cost of slower response: 
 
 $\ E_{k} = \theta_{accel} - \theta_{k-1} $
 
