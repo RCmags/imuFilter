@@ -17,7 +17,9 @@ As the filter uses a quaternion to encode rotations, it's easy to perform coordi
 - Transfor a vector to the local or global frame.
 - Get the unit vectors of the X, Y and Z axes in the local or global frame.
 
-Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor such a magnetometer.
+Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor like a magnetometer.
+
+_NOTE_: This algorithm is robust enough that it has been used to determine the attitude of an RC airplane.  
 
 # Dependecies
 This library depends on the [vector_datatype](https://github.com/RCmags/vector_datatype) library.
