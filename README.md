@@ -19,7 +19,7 @@ As the filter uses a quaternion to encode rotations, it's easy to perform coordi
 
 Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor like a magnetometer.
 
-__Note__: This algorithm is robust enough that it has been used to determine the attitude of an RC plane.  
+__Note__: This algorithm is robust enough that it can be used to determine the attitude of an RC plane.  
 
 # Dependecies
 This library depends on the [vector_datatype](https://github.com/RCmags/vector_datatype) library.
