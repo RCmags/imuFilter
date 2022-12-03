@@ -1,30 +1,42 @@
-#include <Arduino.h>
-#include <quaternion_type.h>
+#include "Arduino.h"
 
 #ifndef imuFilter_h
 #define imuFilter_h
 
-//------------------ Coefficients -------------------- 
+//------------------ Common terms -------------------- 
 
-#define INV_Q_VAL       1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
+#define INV_Q_VAL   1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
+#define QUAT_DIM    4
+#define VEC_DIM     3
 
-//-------------------- Parameters -------------------- [ No characters after backlash! ]
+//--------------- Template Parameters ---------------- [ No characters after backlash! ]
  
-#define TEMPLATE_TYPE   const float *ALPHA
+#define TEMPLATE_TYPE           \
+        const float     *ALPHA
 
-#define TEMPLATE_INPUTS              ALPHA
+#define TEMPLATE_INPUTS         \
+                         ALPHA
 
 //---------------- Class definition ------------------ 
                          
 template<TEMPLATE_TYPE>
 class imuFilter {
   private: 
-    vec3_t s;
-    quat_t q;
-    uint32_t last_time;
+    float s[VEC_DIM] = {0};
+    float q[QUAT_DIM] = {1, 0, 0, 0};
+    uint32_t last_time = 0;
+  
+    // Quaternion operations
+    void multiplyQuaternion( float [] );
+    void normalizeQuaternion();
     float updateTimer();
       
-  public:
+  public:   
+    // Vector functions:
+    void crossProduct( float [], float [] );
+    float dotProduct( float [], float [] );
+    void normalizeVector( float [] );
+
     // Initialization:
     void setup();
     void setup( float, float, float );
@@ -32,18 +44,18 @@ class imuFilter {
     // Heading estimate:
     void update( float, float, float );
     void update( float, float, float, float, float, float );
-    void rotateHeading( float, const bool );
+    void rotateHeading( const bool, float );
 
     //-- Fusion outputs:
     
     // Quaternion
-    quat_t getQuat();
+    void getQuat( float r[] );
 
     // Axis projections:
-    vec3_t getXaxis( const bool );
-    vec3_t getYaxis( const bool );
-    vec3_t getZaxis( const bool );
-    vec3_t projectVector( vec3_t, const bool );
+    void getXaxis( const bool, float [] );
+    void getYaxis( const bool, float [] );
+    void getZaxis( const bool, float [] );
+    void projectVector( const bool, float [] );
     
     // Euler Angles:
     float roll();

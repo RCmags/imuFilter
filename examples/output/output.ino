@@ -6,14 +6,14 @@
 #include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 
 // Sensor fusion
-constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
-imuFilter <&GAIN> fusion;       // If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only).
+constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines heading correction with respect to gravity vector. 
+imuFilter <&GAIN> fusion;
 
 // Imu sensor
 basicMPU6050<> imu;
 
-// Enable sensor fusion. Setting to "true" enables gravity correction.
-#define FUSION  false
+// Enable sensor fusion [ 1 = yes; 0 = no]
+#define FUSION 1
 
 void setup() {
    #if FUSION
