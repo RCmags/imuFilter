@@ -1,13 +1,16 @@
 /*
- This sketch shows to rotate the heading (yaw angle) of the estimated orientation.
+ This sketch shows to perform vector products and rotate heading (yaw angle) of the estimated orientation.
  */
 
-#include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 #include <imuFilter.h>
+#include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 
+// Sensor fusion
+constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines response of heading correction with respect to gravity.
+imuFilter <&GAIN> fusion;
+
+// Imu sensor
 basicMPU6050<> imu;
-
-imuFilter fusion;
 
 void setup() {
   // Initialize filter: 
@@ -16,12 +19,12 @@ void setup() {
   // Calibrate imu
   imu.setup();
   imu.setBias();
+
+  Serial.begin(38400);
                   
   // Rotate heading:
   float angle = 45 * DEG_TO_RAD;                // angle in radians to rotate heading about z-axis
   fusion.rotateHeading( angle, LARGE_ANGLE );   // Can choose LARGE_ANGLE or SMALL_ANGLE approximation
-
-  Serial.begin(38400);
 }
 
 void loop() {  

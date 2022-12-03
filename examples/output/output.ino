@@ -2,21 +2,18 @@
  This sketch shows to initialize the filter and update it with the imu output. It also shows how to get the euler angles of the estimated heading orientation.
  */
 
-#include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 #include <imuFilter.h>
+#include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 
+// Sensor fusion
+constexpr float GAIN = 0.1;     // Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
+imuFilter <&GAIN> fusion;       // If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only).
+
+// Imu sensor
 basicMPU6050<> imu;
-   
-// =========== Settings ===========
-imuFilter fusion;
 
-#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
-                                 If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only) */
-
-#define SD_ACCEL      0.1     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
-                                 Accelerations within this band are used to update the orientation. [Measured in g-force] */                          
-            
-#define FUSION        true    /* Enable sensor fusion. Setting to "true" enables gravity correction */
+// Enable sensor fusion. Setting to "true" enables gravity correction.
+#define FUSION  false
 
 void setup() {
    #if FUSION
@@ -38,8 +35,8 @@ void loop() {
   // Update filter:
   
   #if FUSION
-    /*NOTE: GAIN and SD_ACCEL are optional parameters */
-    fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN, SD_ACCEL );  
+    //Fuse gyro and accelerometer
+    fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az() );    
   #else
     // Only use gyroscope
     fusion.update( imu.gx(), imu.gy(), imu.gz() );
