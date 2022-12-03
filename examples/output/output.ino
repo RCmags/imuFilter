@@ -1,68 +1,37 @@
 /*
  This sketch shows to initialize the filter and update it with the imu output. It also shows how to get the euler angles of the estimated heading orientation.
-*/
+ */
 
 #include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 #include <imuFilter.h>
 
-// Gyro settings:
-#define         LP_FILTER   3           // Low pass filter.                    Value from 0 to 6
-#define         GYRO_SENS   0           // Gyro sensitivity.                   Value from 0 to 3
-#define         ACCEL_SENS  0           // Accelerometer sensitivity.          Value from 0 to 3
-#define         ADDRESS_A0  LOW         // I2C address from state of A0 pin.   A0 -> GND : ADDRESS_A0 = LOW
-                                        //                                     A0 -> 5v  : ADDRESS_A0 = HIGH
-// Accelerometer offset:
-constexpr int   AX_OFFSET =  552;       // Use these values to calibrate the accelerometer. The sensor should output 1.0g if held level. 
-constexpr int   AY_OFFSET = -241;       // These values are unlikely to be zero.
-constexpr int   AZ_OFFSET = -3185;
-
-// Output scale: 
-constexpr float AX_SCALE = 1.00457;     // Multiplier for accelerometer outputs. Use this to calibrate the sensor. If unknown set to 1.
-constexpr float AY_SCALE = 0.99170;
-constexpr float AZ_SCALE = 0.98317;
-
-constexpr float GX_SCALE = 0.99764;     // Multiplier to gyro outputs. Use this to calibrate the sensor. If unknown set to 1.
-constexpr float GY_SCALE = 1.0;
-constexpr float GZ_SCALE = 1.01037;
-
-// Bias estimate:
-#define         GYRO_BAND   35          // Standard deviation of the gyro signal. Gyro signals within this band (relative to the mean) are suppresed.   
-#define         BIAS_COUNT  5000        // Samples of the mean of the gyro signal. Larger values provide better calibration but delay suppression response. 
-
-//-- Set the template parameters:
-
-basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
-             AX_OFFSET,  AY_OFFSET,  AZ_OFFSET, 
-             &AX_SCALE,  &AY_SCALE,  &AZ_SCALE,
-             &GX_SCALE,  &GY_SCALE,  &GZ_SCALE,
-             GYRO_BAND,  BIAS_COUNT 
-            >imu;
+basicMPU6050<> imu;
    
 // =========== Settings ===========
 imuFilter fusion;
 
-#define GAIN          0.5     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
+#define GAIN          0.1     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
                                  If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only) */
 
-#define SD_ACCEL      0.2     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
+#define SD_ACCEL      0.1     /* Standard deviation of acceleration. Accelerations relative to (0,0,1)g outside of this band are suppresed.
                                  Accelerations within this band are used to update the orientation. [Measured in g-force] */                          
             
 #define FUSION        true    /* Enable sensor fusion. Setting to "true" enables gravity correction */
 
 void setup() {
-  Serial.begin(38400);
-  
+   #if FUSION
+    // Set quaternion with gravity vector
+    fusion.setup( imu.ax(), imu.ay(), imu.az() );     
+  #else 
+    // Just use gyro
+    fusion.setup();                                   
+  #endif
+
   // Calibrate imu
   imu.setup();
   imu.setBias();
-
-  #if FUSION
-     Set quaternion with gravity vector
-    fusion.setup( imu.ax(), imu.ay(), imu.az() );     
-  #else 
-     Just use gyro
-    fusion.setup();                                   
-  #endif
+   
+  Serial.begin(38400);
 }
 
 void loop() {

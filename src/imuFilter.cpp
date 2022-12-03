@@ -3,14 +3,14 @@
 //----------------- Initialization ------------------- 
 
 float imuFilter::updateTimer() {
-  uint32_t time_now = micros();
-  uint32_t change_time = time_now - last_time;
-  last_time = time_now;
+  uint32_t change_time = uint32_t( micros() - last_time );
+  last_time = micros();
   return float(change_time)*1e-6;         
 }
 
 void imuFilter::setup() {
   var = 0;
+  s = {0,0,0};
   q = {1,0,0,0};
   last_time = micros();
 }
@@ -54,25 +54,29 @@ void imuFilter::update( float gx, float gy, float gz,
   // Update Timer
   float dt = updateTimer();
 
-  // check global acceleration:
+  // check global acceleration
   vec3_t accel = {ax, ay, az};
-  vec3_t acrel = q.rotate(accel, GLOBAL_FRAME) - vec3_t(0,0,1); 
+  vec3_t error = q.rotate(accel, GLOBAL_FRAME) - vec3_t(0,0,1);
+  float error_mag = error.dot(error);   // deviation from (0,0,1)g
   
-  	// kalmal filter:
-  const float INV_VAR = 1.0/( SD_ACC * SD_ACC );
-  float error = acrel.dot(acrel);     // deviation from vertical
-  
-  float gain = ALPHA * dt;  
-  gain = gain/(1 + var*INV_VAR);      // kalman gain
-  var = error + var*gain;             // variance of error
-  
+  const float INV_VAR = 1.0/( SD_ACC * SD_ACC );  
+  float gain = 1.0/(1 + var*INV_VAR);   // kalman gain
+  var = error_mag + var*gain;           // variance of error
+ 
   // error about vertical
   vec3_t vz = q.axisZ(LOCAL_FRAME);   
   vec3_t ve = accel.norm();
   ve = ve.cross(vz);
 
-  // Rotation increment  
-  vec3_t da = vec3_t(gx, gy, gz)*dt + ve*gain;       
+  // filter gains
+  const float KP = ALPHA*ALPHA;
+  float kp = KP*dt;                     // spring constant
+  float kc = sqrt(INV_Q_FACTOR*kp);     // damping constant           
+  kp *= gain;                           // modulate error with kalman gain
+  
+  // Rotation increment
+  s += ve*kp - s*kc;                    // target angular rate   
+  vec3_t da = vec3_t(gx, gy, gz)*dt + s;       
   quat_t dq; dq.setRotation(da, SMALL_ANGLE);
 
   // Multiply and normalize Quaternion  
@@ -119,14 +123,14 @@ vec3_t imuFilter::projectVector( vec3_t vec, const bool TO_WORLD ) {
 
 //------------------ Euler Angles ------------------- 
 
-float imuFilter::roll() { // x-axis
+float imuFilter::roll() {
   vec3_t v = q.v;
-  float y = 2*( q.w*v.x + v.y*v.z );                        
+  float y = 2*( q.w*v.x + v.y*v.z );
   float x = 1 - 2*( v.x*v.x + v.y*v.y );
   return atan2( y, x );
 }
 
-float imuFilter::pitch() { // y-axis
+float imuFilter::pitch() {
   constexpr float PI_2 = PI*0.5;    
   vec3_t v = q.v;
   float a = 2*( v.y*q.w - v.z*v.x );    
@@ -139,7 +143,7 @@ float imuFilter::pitch() { // y-axis
   }
 }
 
-float imuFilter::yaw() { // z-axis
+float imuFilter::yaw() {
   vec3_t v = q.v;
   float y = 2*( v.z*q.w + v.x*v.y );
   float x = 1 - 2*( v.y*v.y + v.z*v.z );    

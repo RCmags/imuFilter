@@ -7,13 +7,14 @@
 //------------------ Coefficients -------------------- 
 
 #define INV_Q_FACTOR        2           // Filter damping. A smaller value leads to faster response but more oscillations.
-#define DEFAULT_GAIN        0.5         // Default filter gain. 
-#define DEFAULT_SD          0.2         // Default standard deviation in acceleration. [g-force]
+#define DEFAULT_GAIN        0.1         // Default filter gain. A faster value 
+#define DEFAULT_SD          0.1         // Default standard deviation in acceleration. [g-force]
 
 //---------------- Class definition ------------------ 
                          
 class imuFilter {
   private: 
+    vec3_t s;
     quat_t q;
     float var;
     uint32_t last_time;

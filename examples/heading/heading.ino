@@ -10,18 +10,18 @@ basicMPU6050<> imu;
 imuFilter fusion;
 
 void setup() {
-  Serial.begin(38400);
+  // Initialize filter: 
+  fusion.setup( imu.ax(), imu.ay(), imu.az() );     
 
   // Calibrate imu
   imu.setup();
   imu.setBias();
-  
-  // Initialize filter: 
-  fusion.setup( imu.ax(), imu.ay(), imu.az() );     
                   
   // Rotate heading:
   float angle = 45 * DEG_TO_RAD;                // angle in radians to rotate heading about z-axis
   fusion.rotateHeading( angle, LARGE_ANGLE );   // Can choose LARGE_ANGLE or SMALL_ANGLE approximation
+
+  Serial.begin(38400);
 }
 
 void loop() {  
