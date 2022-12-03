@@ -1,23 +1,30 @@
 # imuFilter
+This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _kalman-like_ filter to check the acceleration and see if it lies within a deviation from (0,0,1)g. If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. To this end, the deviation from vertical is used to update the variance and kalman gain: 
 
-This library contains a sensor fusion algorithm to combine the outputs of a 6-axis inertial measurement unit (IMU). It's based on a modified version of the Mahony filter that replaces the PI controller with something akin to a 2nd order low pass filter. The proportional term was removed and the integral term has been forced to decay in order to damp the system. The correction steps of each filter are shown below:
+$\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
 
-- Mahony:  
-_integral += error.dt   
-dtheta = theta_dot.dt + kp.error + ki.integral_  
+$\ K_{\sigma} = {\alpha}/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
 
-- Modified Mahony:  
-_integral += error.kp - integral.kc    
-dtheta = theta_dot.dt + integral_  
+$\ {\sigma}^2 = | \overrightarrow{a_{rel}} |^2 + K_{\sigma}{\sigma}^2 $ 
 
-The behavior of the modified filter is analogous to spring-mass system. Kp (stiffness) and Kc (damping) are related by the damping ratio Q which is held constant. This allows the behavior of the filter to be controlled via a single parameter.  
+The kalman gain then scaled by a delay parameter and used to correct the attitude. This scaling allows the filter to act like a 1rst-order low pass filter that smoothens the acceleration at the cost of slower response: 
 
-The filter uses a quaternion to encode rotations. This makes it easy to perform coordinate transformations. These include:  
-- Transfor a vector from the local frame to the global (and vice versa)
-- Get unit vectors of the X, Y and Z axes in the local or global frame.
+$\ E_{k} = \theta_{accel} - \theta_{k-1} $
 
-Since a 6-axis IMU has no absolute reference for heading there is a function to rotate the orientation estimate about the yaw axis. Basic vector operations have been included to easily implement a heading correction algorithm should one have an additional sensor (such a magnetometer or some other absolute heading sensor).
+$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + K_{\sigma}E_{k} $
 
-For more information on the Mahony filter see these links:
+As the filter uses a quaternion to encode rotations, it's easy to perform coordinate transformations. The library has functions to:
+- Transfor a vector to the local or global frame.
+- Get the unit vectors of the X, Y and Z axes in the local or global frame.
+
+Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor like a magnetometer.
+
+# Dependecies
+This library depends on the [vector_datatype](https://github.com/RCmags/vector_datatype) library.
+
+# References
+See these links for more information on the Mahony filter:
+- [Nonlinear Complementary Filters on the Special
+Orthogonal Group](https://hal.archives-ouvertes.fr/hal-00488376/document) (original paper)
 - [IMU Data Fusing: Complementary, Kalman, and Mahony Filter](http://www.olliw.eu/2013/imu-data-fusing/#chapter23)
 - [Mahony Filter](https://nitinjsanket.github.io/tutorials/attitudeest/mahony)

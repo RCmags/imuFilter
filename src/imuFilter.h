@@ -1,73 +1,55 @@
-#include "Arduino.h"
+#include <Arduino.h>
+#include <quaternion_type.h>
 
 #ifndef imuFilter_h
 #define imuFilter_h
 
-//------------------ Common terms -------------------- 
+//------------------ Coefficients -------------------- 
 
-#define INV_Q_VAL   1.414213            // Damping behavior of filter. A larger value leads to faster response but more oscillations.
-#define QUAT_DIM    4
-#define VEC_DIM     3
-
-//--------------- Template Parameters ---------------- [ No characters after backlash! ]
- 
-#define TEMPLATE_TYPE           \
-        const float     *ALPHA
-
-#define TEMPLATE_INPUTS         \
-                         ALPHA
+#define INV_Q_FACTOR        2           // Filter damping. A smaller value leads to faster response but more oscillations.
+#define DEFAULT_GAIN        0.5         // Default filter gain. 
+#define DEFAULT_SD          0.2         // Default standard deviation in acceleration. [g-force]
 
 //---------------- Class definition ------------------ 
                          
-template<TEMPLATE_TYPE>
 class imuFilter {
   private: 
-    float s[VEC_DIM] = {0};
-    float q[QUAT_DIM] = {1, 0, 0, 0};
-    uint32_t last_time = 0;
-  
-    // Quaternion operations
-    void multiplyQuaternion( float [] );
-    void normalizeQuaternion();
+    quat_t q;
+    float var;
+    uint32_t last_time;
+    
     float updateTimer();
       
-  public:   
-    // Vector functions:
-    void crossProduct( float [], float [] );
-    float dotProduct( float [], float [] );
-    void normalizeVector( float [] );
-
+  public:
     // Initialization:
     void setup();
     void setup( float, float, float );
 
     // Heading estimate:
     void update( float, float, float );
-    void update( float, float, float, float, float, float );
-    void rotateHeading( const bool, float );
+    
+    void update( float, float, float, 
+                 float, float, float, 
+                 const float=DEFAULT_GAIN, 
+                 const float=DEFAULT_SD  );
+                 
+    void rotateHeading( float, const bool );
 
     //-- Fusion outputs:
     
     // Quaternion
-    void getQuat( float r[] );
+    quat_t getQuat();
 
     // Axis projections:
-    void getXaxis( const bool, float [] );
-    void getYaxis( const bool, float [] );
-    void getZaxis( const bool, float [] );
-    void projectVector( const bool, float [] );
+    vec3_t getXaxis( const bool );
+    vec3_t getYaxis( const bool );
+    vec3_t getZaxis( const bool );
+    vec3_t projectVector( vec3_t, const bool );
     
     // Euler Angles:
     float roll();
     float pitch();
     float yaw();
 };
-
-#include "imuFilter.tpp"
-
-//----------------- Clearing labels ------------------
-
-#undef TEMPLATE_TYPE
-#undef TEMPLATE_INPUTS
 
 #endif
