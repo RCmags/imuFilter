@@ -1,4 +1,4 @@
-# Heading estimate
+# imuFilter
 This library fuses the outputs of an inertial measurement unit (IMU) and stores the heading as a quaternion. It uses a _kalman-like_ filter to check the acceleration and see if it lies within a deviation from (0,0,1)g. If the acceleration is within this band, it will strongly correct the orientation. However, if the acceleration lies outside of this band, it will barely affect the orientation. To this end, the deviation from vertical is used to update the variance and kalman gain: 
 
 $\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
@@ -20,7 +20,7 @@ As the filter uses a quaternion to encode rotations, it's easy to perform coordi
 Moreover, since a 6-axis IMU (gyro-accelerometer) cannot measure an absolute heading, a function is included to rotate the orientation about the vertical (yaw) axis. One can use vector operations to correct the heading with an additional sensor like a magnetometer.
 
 # Velocity estimate
-The library can also integrate acceleration to obtain velocity. This is accomplished by using a set of kalman-like filters like the one shown above. First, the acceleration is checked against a rest condition of (0,0,0)g, and any deviations from this state that lie within specified band are suppresed. This eliminates much of the bias in the acceleration due to gravity or miscalibration:
+The library can integrate acceleration to obtain a short-term estimate of velocity. This is accomplished by using a set of kalman-like filters like the one shown above. First, the acceleration is checked against a rest condition of (0,0,0)g, and any deviations from this state that lie within specified uncertainty band are suppresed. This eliminates much of the bias due to gravity or miscalibration:
 
 $\ K_{acc} = 1/(1 + \frac{ S_{acc}^2 }{ {\sigma}_{acc}^2 } ) $
 
@@ -30,7 +30,7 @@ $\ a_{k} = a_{k} - \overline{a_{k}} $
 
 $\ \overline{a_{k}} = \overline{a_{k-1}} + K_{acc}{a_{k}} $
 
-Afterwords, the deviation of the velocity (relative to a known target velocity) along with the variance of the acceleration, are used to determine the kalman gain of the velocity. This relationship causes small velocity deviations or small accelerations to reduce the gain, and the velocity estimate will be forced to match the known target velocity:  
+Afterwords, the deviation of the velocity (relative to a known target velocity) along with the variance of the acceleration are used to determine the kalman gain of the velocity. This relationship causes small velocity deviations or small accelerations to reduce the gain, and the velocity estimate is forced to match the known target velocity:  
 
 $\ \Delta{V} = V_{k-1} - V_{target} $
 
