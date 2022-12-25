@@ -30,10 +30,10 @@ basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
 
 // =========== Settings ===========
 accIntegral fusion;
-                                            //  Unit            Description
-constexpr float GRAVITY = 9.81e3;           //  mm/s^2          Magnitude of gravity at rest          [Determines units]
-constexpr float SD_ACC  = 200;              //  mm/s^2          Standard deviation of acceleration    [Accelerations relative to zero within this band are suppressed]
-constexpr float SD_VEL  = 200;              //  mm/s            Standard deviation of velocity        [Velocities relative to the target value within this band are suppressed]
+                                            //  Unit            
+constexpr float GRAVITY = 9.81e3;           //  mm/s^2          Magnitude of gravity at rest. Determines units of velocity.
+constexpr float SD_ACC  = 200;              //  mm/s^2          Standard deviation of acceleration. Deviations from zero within this band are suppressed
+constexpr float SD_VEL  = 200;              //  mm/s            Standard deviation of velocity. Deviations from the target value within this band are suppressed
 
 void setup() {
   Serial.begin(38400);
@@ -48,7 +48,7 @@ void setup() {
 }
 
 void loop() {   
-  /* Note: The heading must be updated along with the velocity estimate for accurate results.
+  /* NOTE: The heading must be updated along with the velocity estimate for accurate results.
            Use the following steps to ensure proper integration */
   
   // 1. measure state
