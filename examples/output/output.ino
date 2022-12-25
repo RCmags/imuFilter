@@ -2,6 +2,10 @@
  This sketch shows to initialize the filter and update it with the imu output. It also shows how to get the euler angles of the estimated heading orientation.
 */
 
+/* NOTE: The accelerometer MUST be calibrated for the fusion to work. Adjust the 
+   AX, AY, AND AZ offsets until the sensor reads (0,0,0) at rest. 
+*/
+
 #include <basicMPU6050.h>       // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
 #include <imuFilter.h>
 
@@ -16,26 +20,10 @@ constexpr int   AX_OFFSET =  552;       // Use these values to calibrate the acc
 constexpr int   AY_OFFSET = -241;       // These values are unlikely to be zero.
 constexpr int   AZ_OFFSET = -3185;
 
-// Output scale: 
-constexpr float AX_SCALE = 1.00457;     // Multiplier for accelerometer outputs. Use this to calibrate the sensor. If unknown set to 1.
-constexpr float AY_SCALE = 0.99170;
-constexpr float AZ_SCALE = 0.98317;
-
-constexpr float GX_SCALE = 0.99764;     // Multiplier to gyro outputs. Use this to calibrate the sensor. If unknown set to 1.
-constexpr float GY_SCALE = 1.0;
-constexpr float GZ_SCALE = 1.01037;
-
-// Bias estimate:
-#define         GYRO_BAND   35          // Standard deviation of the gyro signal. Gyro signals within this band (relative to the mean) are suppresed.   
-#define         BIAS_COUNT  5000        // Samples of the mean of the gyro signal. Larger values provide better calibration but delay suppression response. 
-
 //-- Set the template parameters:
 
 basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
-             AX_OFFSET,  AY_OFFSET,  AZ_OFFSET, 
-             &AX_SCALE,  &AY_SCALE,  &AZ_SCALE,
-             &GX_SCALE,  &GY_SCALE,  &GZ_SCALE,
-             GYRO_BAND,  BIAS_COUNT 
+             AX_OFFSET,  AY_OFFSET,  AZ_OFFSET
             >imu;
    
 // =========== Settings ===========
@@ -57,10 +45,10 @@ void setup() {
   imu.setBias();
 
   #if FUSION
-     Set quaternion with gravity vector
+    // Set quaternion with gravity vector
     fusion.setup( imu.ax(), imu.ay(), imu.az() );     
   #else 
-     Just use gyro
+    // Just use gyro
     fusion.setup();                                   
   #endif
 }
@@ -69,7 +57,7 @@ void loop() {
   // Update filter:
   
   #if FUSION
-    /*NOTE: GAIN and SD_ACCEL are optional parameters */
+    /* NOTE: GAIN and SD_ACCEL are optional parameters */
     fusion.update( imu.gx(), imu.gy(), imu.gz(), imu.ax(), imu.ay(), imu.az(), GAIN, SD_ACCEL );  
   #else
     // Only use gyroscope

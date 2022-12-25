@@ -28,6 +28,10 @@ void imuFilter::setup( float ax, float ay, float az ) {
   q.v = vec3_t(v.y*norm, -v.x*norm, 0);
 }
 
+void imuFilter::setup( vec3_t accel ) {
+  setup( accel.x, accel.y, accel.z );
+} 
+
 //---------------- Heading estimate ------------------ 
 
 // Update heading with gyro:
@@ -78,6 +82,19 @@ void imuFilter::update( float gx, float gy, float gz,
   // Multiply and normalize Quaternion  
   q *= dq;
   q = q.norm();
+}
+
+// vector inputs:
+void imuFilter::update( vec3_t gyro ) {
+  update(gyro.x, gyro.y, gyro.z);
+}
+
+void imuFilter::update( vec3_t gyro, vec3_t accel,  
+                        const float ALPHA  /*=DEFAULT_GAIN*/, 
+                        const float SD_ACC /*=DEFAULT_SD*/ ) { 
+  update( gyro.x , gyro.y , gyro.z, 
+          accel.x, accel.y, accel.z,
+          ALPHA, SD_ACC ); 
 }
 
 // Rotate heading by a large or small angle

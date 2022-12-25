@@ -24,6 +24,7 @@ class imuFilter {
     // Initialization:
     void setup();
     void setup( float, float, float );
+	void setup( vec3_t );
 
     // Heading estimate:
     void update( float, float, float );
@@ -31,6 +32,11 @@ class imuFilter {
     void update( float, float, float, 
                  float, float, float, 
                  const float=DEFAULT_GAIN, 
+                 const float=DEFAULT_SD  );
+
+    void update( vec3_t );               
+    void update( vec3_t, vec3_t, 
+    			 const float=DEFAULT_GAIN, 
                  const float=DEFAULT_SD  );
                  
     void rotateHeading( float, const bool );
@@ -40,7 +46,7 @@ class imuFilter {
     // Quaternion
     quat_t getQuat();
 
-    // Axis projections:
+    // Axis projections:arduino
     vec3_t getXaxis( const bool );
     vec3_t getYaxis( const bool );
     vec3_t getZaxis( const bool );
