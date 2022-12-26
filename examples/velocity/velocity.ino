@@ -1,5 +1,5 @@
 /*
- This sketch shows to integrate accelerartion to obtain an estimate of velocity
+ This sketch shows to integrate acceleration to obtain an estimate of velocity
 */
 
 /* NOTE: The accelerometer MUST be calibrated to integrate its output. Adjust the 
@@ -32,8 +32,8 @@ basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
 accIntegral fusion;
                                             //  Unit            
 constexpr float GRAVITY = 9.81e3;           //  mm/s^2          Magnitude of gravity at rest. Determines units of velocity.
-constexpr float SD_ACC  = 200;              //  mm/s^2          Standard deviation of acceleration. Deviations from zero within this band are suppressed
-constexpr float SD_VEL  = 200;              //  mm/s            Standard deviation of velocity. Deviations from the target value within this band are suppressed
+constexpr float SD_ACC  = 200;              //  mm/s^2          Standard deviation of acceleration. Deviations from zero are suppressed
+constexpr float SD_VEL  = 200;              //  mm/s            Standard deviation of velocity. Deviations from target value are suppressed
 
 void setup() {
   Serial.begin(38400);
