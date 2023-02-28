@@ -11,38 +11,31 @@ void accIntegral::reset() {
   // scalars
   var_vel = 0;
   var_acc = 0;
-  time_last = micros();
 }
 
-//---------------------- Other -----------------------  
+//---------------- Velocity estimate ----------------- 
 
 vec3_t accIntegral::getVel() {
   return vel;
 }
 
-float accIntegral::updateTimer() {
-  uint32_t time_now = micros();
-  uint32_t change_time = time_now - time_last;
-  time_last = time_now;
-  return float(change_time)*1e-6;         
-}
-
-//---------------- Velocity estimate ----------------- 
-
 // update velocity with imu measurements 
-void accIntegral::updateVel( vec3_t angvel, 
-                             vec3_t accel, 
-                             vec3_t vel_t, 
-                             const float SD_ACC, 
-                             const float SD_VEL, 
-                             const float GRAVITY ) {
+void accIntegral::update( vec3_t angvel, 
+                          vec3_t accel, 
+                          vec3_t vel_t, 
+                          const float SD_ACC, 
+                          const float SD_VEL, 
+                          const float GRAVITY,
+                          const float ALPHA ) {
   // 0. Constants:
   const float VAR_ACC = SD_ACC*SD_ACC;
   const float VAR_VEL = SD_VEL*SD_VEL;
   const float VAR_COMB = VAR_ACC*VAR_VEL;
   
   // 1. Remove acceleration bias:
-  quat_t qt = this->getQuat(); 
+  imuFilter::update( angvel, accel, ALPHA, SD_ACC );
+  quat_t qt = imuFilter::getQuat(); 
+  
   accel *= GRAVITY;               // convert to given units
   
     // Remove centrifugal
@@ -67,12 +60,13 @@ void accIntegral::updateVel( vec3_t angvel,
   vec3_t dvel = vel_t - vel;
   
   float dvel_mag = dvel.dot(dvel);
-  float gain_vel = VAR_COMB/(VAR_COMB + var_vel*var_acc); // gain affected by velocity and acceleration
+                // gain affected by velocity and acceleration
+  float gain_vel = VAR_COMB/(VAR_COMB + var_vel*var_acc); 
   
   var_vel = dvel_mag + gain_vel*var_vel;        
   
     // Integrate       
-  float dt = updateTimer();
+  float dt = imuFilter::timeStep();
   vel += 0.5*(accel + accel_last)*dt;     // trapezoidal rule
   vel += dvel*gain_vel;                   // update with target velocity
   
@@ -80,14 +74,15 @@ void accIntegral::updateVel( vec3_t angvel,
 }
 
 // verbose update
-void accIntegral::updateVel( float gx, float gy, float gz, 
-                             float ax, float ay, float az, 
-                             float vx, float vy, float vz, 
-                             const float SD_ACC, 
-                             const float SD_VEL, 
-                             const float GRAVITY ) {                  
+void accIntegral::update( float gx, float gy, float gz, 
+                          float ax, float ay, float az, 
+                          float vx, float vy, float vz, 
+                          const float SD_ACC, 
+                          const float SD_VEL, 
+                          const float GRAVITY,
+                          const float ALPHA ) {                  
   vec3_t angvel = {gx, gy, gz};
   vec3_t accel  = {ax, ay, az};
   vec3_t vel_t  = {vx, vy, vz};
-  return updateVel( angvel, accel, vel_t, SD_ACC, SD_VEL, GRAVITY );
+  return update( angvel, accel, vel_t, ALPHA, SD_ACC, SD_VEL, GRAVITY );
 }

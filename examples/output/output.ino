@@ -70,5 +70,10 @@ void loop() {
   Serial.print( fusion.yaw() );
   Serial.print( " " );
   Serial.print( fusion.roll() );
+  
+  // timestep
+  Serial.print( " " );
+  Serial.print( fusion.timeStep(), 6 );
+  
   Serial.println(); 
 }

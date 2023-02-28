@@ -2,11 +2,11 @@
 
 //----------------- Initialization ------------------- 
 
-float imuFilter::updateTimer() {
+void imuFilter::updateTimer() {
   uint32_t time_now = micros();
   uint32_t change_time = time_now - last_time;
   last_time = time_now;
-  return float(change_time)*1e-6;         
+  dt = float(change_time)*1e-6;         
 }
 
 void imuFilter::setup() {
@@ -38,7 +38,7 @@ void imuFilter::setup( vec3_t accel ) {
 
 void imuFilter::update( float gx, float gy, float gz ) {
   // Update Timer
-  float dt = updateTimer();
+  updateTimer();
 
   // Rotation increment
   vec3_t da = vec3_t(gx, gy, gz)*dt;
@@ -56,13 +56,13 @@ void imuFilter::update( float gx, float gy, float gz,
                         const float ALPHA  /*=DEFAULT_GAIN*/, 
                         const float SD_ACC /*=DEFAULT_SD*/ ) {  
   // Update Timer
-  float dt = updateTimer();
+  updateTimer();
 
   // check global acceleration:
   vec3_t accel = {ax, ay, az};
   vec3_t acrel = q.rotate(accel, GLOBAL_FRAME) - vec3_t(0,0,1); 
   
-  	// kalmal filter:
+    // kalmal filter:
   const float INV_VAR = 1.0/( SD_ACC * SD_ACC );
   float error = acrel.dot(acrel);     // deviation from vertical
   
@@ -132,6 +132,10 @@ vec3_t imuFilter::getZaxis( const bool TO_WORLD ) {
 
 vec3_t imuFilter::projectVector( vec3_t vec, const bool TO_WORLD ) {
   return q.rotate(vec, TO_WORLD);
+}
+
+float imuFilter::timeStep() {
+  return dt;
 }
 
 //------------------ Euler Angles ------------------- 

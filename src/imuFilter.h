@@ -16,15 +16,16 @@ class imuFilter {
   private: 
     quat_t q;
     float var;
+    float dt;
     uint32_t last_time;
     
-    float updateTimer();
+    void updateTimer();
       
   public:
     // Initialization:
     void setup();
     void setup( float, float, float );
-	void setup( vec3_t );
+    void setup( vec3_t );
 
     // Heading estimate:
     void update( float, float, float );
@@ -36,10 +37,12 @@ class imuFilter {
 
     void update( vec3_t );               
     void update( vec3_t, vec3_t, 
-    			 const float=DEFAULT_GAIN, 
+                 const float=DEFAULT_GAIN, 
                  const float=DEFAULT_SD  );
                  
     void rotateHeading( float, const bool );
+
+    float timeStep();
 
     //-- Fusion outputs:
     

@@ -2,8 +2,13 @@
  This sketch shows to integrate acceleration to obtain an estimate of velocity
 */
 
-/* NOTE: The accelerometer MUST be calibrated to integrate its output. Adjust the 
-   AX, AY, AND AZ offsets until the sensor reads (0,0,0) at rest. 
+/* NOTE: 
+   1. The accelerometer MUST be calibrated to integrate its output. Adjust the 
+   AX, AY, AND AZ offsets until the sensor reads (0,0,0) at rest.
+
+   2. REQUIRED UNITS:
+      I. The gyroscope must output: radians/second
+      II. The accelerometer output:  g-force         [1 g-force ~ 9.81 meter/second^2] 
 */
 
 #include <basicMPU6050.h>   // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
@@ -32,8 +37,9 @@ basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
 accIntegral fusion;
                                             //  Unit            
 constexpr float GRAVITY = 9.81e3;           //  mm/s^2          Magnitude of gravity at rest. Determines units of velocity.
-constexpr float SD_ACC  = 200;              //  mm/s^2          Standard deviation of acceleration. Deviations from zero are suppressed.
+constexpr float SD_ACC  = 1000;             //  mm/s^2          Standard deviation of acceleration. Deviations from zero are suppressed.
 constexpr float SD_VEL  = 200;              //  mm/s            Standard deviation of velocity. Deviations from target value are suppressed.
+constexpr float ALPHA   = 0.5;              //                  Gain of heading estimate - See example "output" [optional parameter]
 
 void setup() {
   Serial.begin(38400);
@@ -44,7 +50,9 @@ void setup() {
 
   // initialize sensor fusion
   fusion.setup( imu.ax(), imu.ay(), imu.az() );   // set initial heading 
-  fusion.reset();                                 // zero velocity estimate
+
+  /* Use this function to zero velocity estimate */
+  //fusion.reset();                                 
 }
 
 void loop() {   
@@ -57,17 +65,13 @@ void loop() {
   vec3_t accel = { imu.ax(), imu.ay(), imu.az() };
   vec3_t gyro = { imu.gx(), imu.gy(), imu.gz() };
 
-  // 2. update heading
-
-  fusion.update( gyro, accel );
-
-  // 3. update velocity estimate
+  // 2. update heading and velocity estimate
 
   vec3_t vel_t = {0,0,0};   // Known measured velocity (target state)
-  vec3_t vel;               // placeholder variable 
-  
-  fusion.updateVel( gyro, accel, vel_t, SD_ACC, SD_VEL, GRAVITY );
-  vel = fusion.getVel();
+
+                                             /* ALPHA is optional - can be excluded */
+  fusion.update( gyro, accel, vel_t, SD_ACC, SD_VEL, GRAVITY, ALPHA ); 
+  vec3_t vel = fusion.getVel();
   
   // Display velocity components [view with serial plotter]
  
