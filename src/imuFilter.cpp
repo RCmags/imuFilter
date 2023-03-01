@@ -2,6 +2,10 @@
 
 //----------------- Initialization ------------------- 
 
+float imuFilter::timeStep() {
+  return dt;
+}
+
 void imuFilter::updateTimer() {
   uint32_t time_now = micros();
   uint32_t change_time = time_now - last_time;
@@ -15,10 +19,10 @@ void imuFilter::setup() {
   last_time = micros();
 }
 
-void imuFilter::setup( float ax, float ay, float az ) { 
+void imuFilter::setup( vec3_t accel ) { 
   setup();
   // set quaternion as vertical vector
-  vec3_t v = vec3_t(ax, ay, az).norm();             // gravity vector
+  vec3_t v = accel.norm();                          // gravity vector
  
   float norm = v.x*v.x + v.y*v.y;                   
   float cosine = v.z/sqrt( norm + v.z*v.z ) * 0.5;  // vertical angle
@@ -28,8 +32,8 @@ void imuFilter::setup( float ax, float ay, float az ) {
   q.v = vec3_t(v.y*norm, -v.x*norm, 0);
 }
 
-void imuFilter::setup( vec3_t accel ) {
-  setup( accel.x, accel.y, accel.z );
+void imuFilter::setup( float ax, float ay, float az ) {
+  setup( vec3_t(ax, ay, az) );
 } 
 
 //---------------- Heading estimate ------------------ 
@@ -53,29 +57,31 @@ void imuFilter::update( float gx, float gy, float gz ) {
 
 void imuFilter::update( float gx, float gy, float gz, 
                         float ax, float ay, float az, 
-                        const float ALPHA  /*=DEFAULT_GAIN*/, 
-                        const float SD_ACC /*=DEFAULT_SD*/ ) {  
+                        const float ALPHA, 
+                        const float SD_ACC,
+                        const float GRAVITY ) {  
   // Update Timer
   updateTimer();
 
   // check global acceleration:
   vec3_t accel = {ax, ay, az};
-  vec3_t acrel = q.rotate(accel, GLOBAL_FRAME) - vec3_t(0,0,1); 
+  vec3_t acrel = q.rotate(accel, GLOBAL_FRAME);
+  acrel.z -= GRAVITY; 
   
     // kalmal filter:
   const float INV_VAR = 1.0/( SD_ACC * SD_ACC );
   float error = acrel.dot(acrel);     // deviation from vertical
   
-  float gain = ALPHA * dt;  
-  gain = gain/(1 + var*INV_VAR);      // kalman gain
+  float gain = 1.0/(1 + var*INV_VAR); // kalman gain
   var = error + var*gain;             // variance of error
-  
+    
   // error about vertical
   vec3_t vz = q.axisZ(LOCAL_FRAME);   
   vec3_t ve = accel.norm();
   ve = ve.cross(vz);
 
   // Rotation increment  
+  gain *= ALPHA * dt;   
   vec3_t da = vec3_t(gx, gy, gz)*dt + ve*gain;       
   quat_t dq; dq.setRotation(da, SMALL_ANGLE);
 
@@ -90,8 +96,9 @@ void imuFilter::update( vec3_t gyro ) {
 }
 
 void imuFilter::update( vec3_t gyro, vec3_t accel,  
-                        const float ALPHA  /*=DEFAULT_GAIN*/, 
-                        const float SD_ACC /*=DEFAULT_SD*/ ) { 
+                        const float ALPHA, 
+                        const float SD_ACC,
+                        const float GRAVITY ) { 
   update( gyro.x , gyro.y , gyro.z, 
           accel.x, accel.y, accel.z,
           ALPHA, SD_ACC ); 
@@ -132,10 +139,6 @@ vec3_t imuFilter::getZaxis( const bool TO_WORLD ) {
 
 vec3_t imuFilter::projectVector( vec3_t vec, const bool TO_WORLD ) {
   return q.rotate(vec, TO_WORLD);
-}
-
-float imuFilter::timeStep() {
-  return dt;
 }
 
 //------------------ Euler Angles ------------------- 

@@ -24,7 +24,7 @@ void accIntegral::update( vec3_t angvel,
                           vec3_t accel, 
                           vec3_t vel_t, 
                           const float SD_ACC, 
-                          const float SD_VEL, 
+                          const float SD_VEL,
                           const float GRAVITY,
                           const float ALPHA ) {
   // 0. Constants:
@@ -33,11 +33,9 @@ void accIntegral::update( vec3_t angvel,
   const float VAR_COMB = VAR_ACC*VAR_VEL;
   
   // 1. Remove acceleration bias:
-  imuFilter::update( angvel, accel, ALPHA, SD_ACC );
+  imuFilter::update( angvel, accel, ALPHA, SD_ACC, GRAVITY );
   quat_t qt = imuFilter::getQuat(); 
-  
-  accel *= GRAVITY;               // convert to given units
-  
+    
     // Remove centrifugal
   vec3_t vel_local = qt.rotate(vel, LOCAL_FRAME);
   accel -= vel_local.cross(angvel);
@@ -78,11 +76,11 @@ void accIntegral::update( float gx, float gy, float gz,
                           float ax, float ay, float az, 
                           float vx, float vy, float vz, 
                           const float SD_ACC, 
-                          const float SD_VEL, 
+                          const float SD_VEL,
                           const float GRAVITY,
                           const float ALPHA ) {                  
   vec3_t angvel = {gx, gy, gz};
   vec3_t accel  = {ax, ay, az};
   vec3_t vel_t  = {vx, vy, vz};
-  return update( angvel, accel, vel_t, ALPHA, SD_ACC, SD_VEL, GRAVITY );
+  return update( angvel, accel, vel_t, SD_ACC, SD_VEL, GRAVITY, ALPHA );
 }

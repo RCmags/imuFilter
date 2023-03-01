@@ -3,7 +3,7 @@ This library fuses the outputs of an inertial measurement unit (IMU) and stores 
 
 $\ \overrightarrow{a_{rel}} = \overrightarrow{a_{local}} - (0,0,1) $
 
-$\ K_{\sigma} = {\alpha}/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
+$\ K_{\sigma} = 1/(1 + \frac{ {\sigma}^2 }{ {\sigma}_{acc}^2 } ) $
 
 $\ {\sigma}^2 = | \overrightarrow{a_{rel}} |^2 + K_{\sigma}{\sigma}^2 $ 
 
@@ -11,7 +11,9 @@ The kalman gain then scaled by a delay parameter and used to correct the attitud
 
 $\ E_{k} = \theta_{accel} - \theta_{k-1} $
 
-$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + K_{\sigma}E_{k} $
+$\ K_{\theta} = {\alpha} K_{\sigma} {\Delta t} $
+
+$\ \theta_{k} = \theta_{k-1} + \dot{\theta}{\Delta t} + K_{\theta}E_{k} $
 
 As the filter uses a quaternion to encode rotations, it's easy to perform coordinate transformations. The library has functions to:
 - Transfor a vector to the local or global frame.
