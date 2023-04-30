@@ -48,8 +48,4 @@ $\ V_{k} = V_{k-1} + K_{vel}{\Delta}{V} + \frac{dt}{2}( a_{k} + a_{k-1} ) $
 This library depends on the [vector_datatype](https://github.com/RCmags/vector_datatype) library.
 
 # References
-See these links for more information on the Mahony filter:
-- [Nonlinear Complementary Filters on the Special
-Orthogonal Group](https://hal.archives-ouvertes.fr/hal-00488376/document) (original paper)
-- [IMU Data Fusing: Complementary, Kalman, and Mahony Filter](http://www.olliw.eu/2013/imu-data-fusing/#chapter23)
-- [Mahony Filter](https://nitinjsanket.github.io/tutorials/attitudeest/mahony)
+The form of the filter is inspired by the [SimpleKalmanFilter](https://github.com/denyssene/SimpleKalmanFilter) library.
