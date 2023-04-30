@@ -4,11 +4,11 @@
 
 /* NOTE: 
    1. The accelerometer MUST be calibrated to integrate its output. Adjust the 
-   AX, AY, AND AZ offsets until the sensor reads (0,0,GRAVITY) at rest.
+   AX, AY, AND AZ offsets until the sensor reads (0,0,1) at rest.
 
    2. REQUIRED UNITS:
       I. The gyroscope must output: radians/second
-      II. The accelerometer output:  length/second^2  [The length unit is arbitrary. Can be meter, feet, etc]
+      II. The accelerometer output: g-force         [outputs 1 when sensor is static]
 */
 
 #include <basicMPU6050.h>   // Library for IMU sensor. See this link: https://github.com/RCmags/basicMPU6050
@@ -23,9 +23,9 @@
 #define         ADDRESS_A0  LOW         // I2C address from state of A0 pin.   A0 -> GND : ADDRESS_A0 = LOW
                                         //                                     A0 -> 5v  : ADDRESS_A0 = HIGH
 // Accelerometer offset:
-constexpr int   AX_OFFSET =  552;       // Use these values to calibrate the accelerometer. The sensor should output 1.0g if held level. 
-constexpr int   AY_OFFSET = -241;       // These values are unlikely to be zero.
-constexpr int   AZ_OFFSET = -3185;
+constexpr int   AX_OFFSET = 0;       // Use these values to calibrate the accelerometer. The sensor should output 1.0g if held level. 
+constexpr int   AY_OFFSET = 0;       // These values are unlikely to be zero.
+constexpr int   AZ_OFFSET = 0;
 
 //-- Set template parameters:
 
@@ -36,15 +36,11 @@ basicMPU6050<LP_FILTER,  GYRO_SENS,  ACCEL_SENS, ADDRESS_A0,
 // =========== Settings ===========
 accIntegral fusion;
 
-// Filter coefficients               //  Unit           
-constexpr float GRAVITY = 9.81e3;    //  mm/s^2    Magnitude of gravity at rest. Determines units of velocity. [UNITS MUST MATCH ACCELERATION]
-constexpr float SD_ACC  = 1000;      //  mm/s^2    Standard deviation of acceleration. Deviations from zero are suppressed.
-constexpr float SD_VEL  = 200;       //  mm/s      Standard deviation of velocity. Deviations from target value are suppressed.
-constexpr float ALPHA   = 0.5;       //            Gain of heading update - See example "output" for more information.
-
-// Sensor scaling
-constexpr float TO_LENGTH_PER_SECOND_SQ = GRAVITY;     // Constant to convert acceleration measurements to:  length/second^2
-constexpr float TO_RAD_PER_SECOND = 1.0;               // Constant to convery gyroscope measurements to:     radians/second
+// Filter coefficients                       //  Unit           
+constexpr float GRAVITY = 9.81e3;            //  mm/s^2             Magnitude of gravity at rest. Determines units of velocity. [UNITS MUST MATCH ACCELERATION]
+constexpr float SD_ACC  = 1000 / GRAVITY;    //  mm/s^2 / g-force   Standard deviation of acceleration. Deviations from zero are suppressed.
+constexpr float SD_VEL  = 200  / GRAVITY;    //  mm/s   / g-force   Standard deviation of velocity. Deviations from target value are suppressed.
+constexpr float ALPHA   = 0.5;               //                     Gain of heading update - See example "output" for more information.
 
 void setup() {
   Serial.begin(38400);
@@ -65,23 +61,21 @@ void loop() {
   imu.updateBias(); 
   
   // Measure state:  
-  vec3_t accel = { imu.ax(), imu.ay(), imu.az() };
-  vec3_t gyro = { imu.gx(), imu.gy(), imu.gz() };
-
-      // Scale measurements
-  accel *= TO_LENGTH_PER_SECOND_SQ;
-  gyro *= TO_RAD_PER_SECOND;
+  vec3_t accel = { imu.ax(), imu.ay(), imu.az() };    // g-unit
+  vec3_t gyro = { imu.gx(), imu.gy(), imu.gz() };     // radians/second
  
   // Update heading and velocity estimate:
   
       // known measured velocity (target state). Estimate will be forced towards this vector
-  vec3_t vel_t = {0,0,0};         
+  vec3_t vel_t = {0,0,0};
+
+  vel_t /= GRAVITY;                         // must have unit: g-force * second
   
       /* note: all coefficients are optional and have default values */
-  fusion.update( gyro, accel, vel_t, SD_ACC, SD_VEL, GRAVITY, ALPHA ); 
+  fusion.update( gyro, accel, vel_t, SD_ACC, SD_VEL, ALPHA ); 
 
       // obtain velocity estimate
-  vec3_t vel = fusion.getVel();   
+  vec3_t vel = fusion.getVel() * GRAVITY;   // scale by gravity for desired units
   
   // Display velocity components: [view with serial plotter]
   Serial.print( vel.x, 2 );

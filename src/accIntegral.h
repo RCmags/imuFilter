@@ -28,7 +28,6 @@ class accIntegral: public imuFilter {
     void update( vec3_t, vec3_t, vec3_t,
                  const float=DEFAULT_SD_ACC, 
                  const float=DEFAULT_SD_VEL,
-                 const float=DEFAULT_GRAVITY,
                  const float=DEFAULT_GAIN );
 
     void update( float, float, float, 
@@ -36,7 +35,6 @@ class accIntegral: public imuFilter {
                  float, float, float,  
                  const float=DEFAULT_SD_ACC, 
                  const float=DEFAULT_SD_VEL,
-                 const float=DEFAULT_GRAVITY,
                  const float=DEFAULT_GAIN );
 };
 

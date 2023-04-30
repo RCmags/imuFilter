@@ -58,15 +58,14 @@ void imuFilter::update( float gx, float gy, float gz ) {
 void imuFilter::update( float gx, float gy, float gz, 
                         float ax, float ay, float az, 
                         const float ALPHA, 
-                        const float SD_ACC,
-                        const float GRAVITY ) {  
+                        const float SD_ACC ) {  
   // Update Timer
   updateTimer();
 
-  // check global acceleration:
+  // check global acceleration [normalized]:
   vec3_t accel = {ax, ay, az};
   vec3_t acrel = q.rotate(accel, GLOBAL_FRAME);
-  acrel.z -= GRAVITY; 
+  acrel.z -= 1; 
   
     // kalmal filter:
   const float INV_VAR = 1.0/( SD_ACC * SD_ACC );
@@ -97,8 +96,7 @@ void imuFilter::update( vec3_t gyro ) {
 
 void imuFilter::update( vec3_t gyro, vec3_t accel,  
                         const float ALPHA, 
-                        const float SD_ACC,
-                        const float GRAVITY ) { 
+                        const float SD_ACC ) { 
   update( gyro.x , gyro.y , gyro.z, 
           accel.x, accel.y, accel.z,
           ALPHA, SD_ACC ); 
