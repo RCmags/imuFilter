@@ -12,7 +12,7 @@
 class accIntegral: public imuFilter {
   private:
     // vectors
-    vec3_t   vel = 0;           
+    vec3_t   vel = {0,0,0};           
     vec3_t   accel_mean = {0,0,0};     
     vec3_t   accel_last = {0,0,0};
     
